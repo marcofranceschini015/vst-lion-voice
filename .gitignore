@@ -1,2 +1,15 @@
+# Local-only project notes (not published)
 CLAUDE.md
 docs/
+
+# Build output
+build/
+Testing/
+
+# Editor and tooling caches
+.cache/
+*.xcuserstate
+xcuserdata/
+
+# macOS
+.DS_Store
