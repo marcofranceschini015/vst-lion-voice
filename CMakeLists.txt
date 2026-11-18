@@ -12,7 +12,29 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(LIONVOICE_BUILD_TESTS "Build the DSP unit tests" ON)
+
 add_subdirectory(libs/JUCE)
+
+# --- DSP library (pure C++, no JUCE) -------------------------------------------
+# Shared by the plugin and the unit tests. JUCE is only used here for its recommended compiler flags.
+add_library(LionVoiceDsp STATIC
+    src/dsp/BiquadDesign.cpp)
+
+target_include_directories(LionVoiceDsp
+    PUBLIC
+        src)
+
+target_compile_features(LionVoiceDsp
+    PUBLIC
+        cxx_std_20)
+
+target_link_libraries(LionVoiceDsp
+    PRIVATE
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_warning_flags)
+
+# --- Plugin ---------------------------------------------------------------------
 
 juce_add_plugin(LionVoice
     PRODUCT_NAME "Lion Voice"
@@ -50,8 +72,15 @@ target_compile_definitions(LionVoice
 
 target_link_libraries(LionVoice
     PRIVATE
+        LionVoiceDsp
         juce::juce_audio_utils
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
+
+# --- Tests ----------------------------------------------------------------------
+if(LIONVOICE_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()

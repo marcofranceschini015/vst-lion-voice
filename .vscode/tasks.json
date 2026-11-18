@@ -22,6 +22,14 @@
       "problemMatcher": ["$gcc"]
     },
     {
+      "label": "Run tests",
+      "type": "shell",
+      "command": "ctest --preset debug",
+      "dependsOn": "Build (debug)",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
       "label": "Validate plugin",
       "type": "shell",
       "command": "${workspaceFolder}/scripts/validate.sh",
