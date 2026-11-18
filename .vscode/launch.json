@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Standalone (debug)",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/debug/LionVoice_artefacts/Debug/Standalone/Lion Voice.app/Contents/MacOS/Lion Voice",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Build (debug)"
+    },
+    {
+      "name": "REAPER (debug plugin)",
+      "type": "lldb",
+      "request": "launch",
+      "program": "/Applications/REAPER.app/Contents/MacOS/REAPER",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Build (debug)"
+    },
+    {
+      "name": "Attach to running process",
+      "type": "lldb",
+      "request": "attach",
+      "pid": "${command:pickMyProcess}"
+    }
+  ]
+}

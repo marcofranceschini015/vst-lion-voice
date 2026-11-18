@@ -1,0 +1,33 @@
+{
+  // CMake Tools: use CMakePresets.json (debug / release)
+  "cmake.useCMakePresets": "always",
+  "cmake.configureOnOpen": true,
+  "cmake.buildBeforeRun": true,
+
+  // clangd provides code completion and errors; it reads the compile commands of the debug build
+  "clangd.arguments": [
+    "--compile-commands-dir=${workspaceFolder}/build/debug",
+    "--background-index",
+    "--header-insertion=never",
+    "--clang-tidy=false"
+  ],
+
+  // Microsoft C/C++ IntelliSense conflicts with clangd: keep it off even if the extension gets installed
+  "C_Cpp.intelliSenseEngine": "disabled",
+
+  // Format C++ with .clang-format on save
+  "[cpp]": {
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+    "editor.formatOnSave": true
+  },
+
+  // Keep search results focused on our code
+  "search.exclude": {
+    "build/**": true,
+    "libs/**": true
+  },
+  "files.watcherExclude": {
+    "build/**": true,
+    "libs/**": true
+  }
+}

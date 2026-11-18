@@ -1,0 +1,39 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Configure (debug)",
+      "type": "shell",
+      "command": "cmake --preset debug",
+      "problemMatcher": []
+    },
+    {
+      "label": "Build (debug)",
+      "type": "shell",
+      "command": "cmake --build --preset debug",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "Build (release, universal)",
+      "type": "shell",
+      "command": "cmake --preset release && cmake --build --preset release",
+      "group": "build",
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "Validate plugin",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/validate.sh",
+      "dependsOn": "Build (debug)",
+      "problemMatcher": []
+    },
+    {
+      "label": "Validate plugin (strict)",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/validate.sh --strict",
+      "dependsOn": "Build (debug)",
+      "problemMatcher": []
+    }
+  ]
+}
