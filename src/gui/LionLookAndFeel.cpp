@@ -5,7 +5,6 @@
 #include "Palette.h"
 #include "SteelBackground.h"
 
-#include <cmath>
 
 namespace lionvoice::gui
 {
@@ -15,6 +14,11 @@ LionLookAndFeel::LionLookAndFeel()
     setColour (juce::Slider::rotarySliderFillColourId, palette::capGrey);
     setColour (juce::ToggleButton::tickColourId, palette::ledRedOn);
     setColour (juce::ToggleButton::textColourId, palette::engraveInk);
+
+    // Value bubble shown while turning a knob.
+    setColour (juce::BubbleComponent::backgroundColourId, palette::keyBottom.withAlpha (0.92f));
+    setColour (juce::BubbleComponent::outlineColourId, juce::Colours::black);
+    setColour (juce::TooltipWindow::textColourId, juce::Colours::white);
 }
 
 void LionLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,

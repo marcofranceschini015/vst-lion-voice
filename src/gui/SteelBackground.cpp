@@ -93,6 +93,14 @@ void drawEngravedPlate (juce::Graphics& g, juce::Rectangle<float> area, float co
     g.drawRoundedRectangle (area, cornerRadius, 1.2f);
 }
 
+void drawEngravedLine (juce::Graphics& g, float y, float x1, float x2)
+{
+    g.setColour (palette::engraveShadow);
+    g.fillRect (juce::Rectangle<float> (x1, y, x2 - x1, 1.0f));
+    g.setColour (palette::engraveHighlight);
+    g.fillRect (juce::Rectangle<float> (x1, y + 1.0f, x2 - x1, 1.0f));
+}
+
 void drawScrew (juce::Graphics& g, juce::Point<float> centre, float radius, float angleRadians)
 {
     const auto head = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (centre);

@@ -15,6 +15,9 @@ void drawBrushedSteel (juce::Graphics& g, juce::Rectangle<float> area);
 /** A plate recessed into the faceplate: slightly darker, with an engraved (cut-in) edge. */
 void drawEngravedPlate (juce::Graphics& g, juce::Rectangle<float> area, float cornerRadius = 5.0f);
 
+/** A thin horizontal groove cut into the steel (used to separate sections inside a plate). */
+void drawEngravedLine (juce::Graphics& g, float y, float x1, float x2);
+
 /** A steel cross-head screw. */
 void drawScrew (juce::Graphics& g, juce::Point<float> centre, float radius, float angleRadians);
 
