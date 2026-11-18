@@ -3,6 +3,7 @@
 
 #include "PluginProcessor.h"
 #include "Parameters.h"
+#include "PluginEditor.h"
 
 namespace
 {
@@ -124,8 +125,7 @@ void LionVoiceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
 
 juce::AudioProcessorEditor* LionVoiceAudioProcessor::createEditor()
 {
-    // Temporary: JUCE's automatic slider-per-parameter window, until the SSL-style GUI replaces it.
-    return new juce::GenericAudioProcessorEditor (*this);
+    return new LionVoiceAudioProcessorEditor (*this);
 }
 
 void LionVoiceAudioProcessor::getStateInformation (juce::MemoryBlock& destData)

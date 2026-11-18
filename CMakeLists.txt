@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(LIONVOICE_BUILD_TESTS "Build the DSP unit tests" ON)
+option(LIONVOICE_BUILD_TOOLS "Build developer tools (GUI snapshot renderer)" ON)
 
 add_subdirectory(libs/JUCE)
 
@@ -37,6 +38,15 @@ target_link_libraries(LionVoiceDsp
 
 # --- Plugin ---------------------------------------------------------------------
 
+# Plugin sources (also compiled by the developer tools).
+set(LIONVOICE_PLUGIN_SOURCES
+    ${PROJECT_SOURCE_DIR}/src/Parameters.cpp
+    ${PROJECT_SOURCE_DIR}/src/PluginProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/src/PluginEditor.cpp
+    ${PROJECT_SOURCE_DIR}/src/gui/ConsoleView.cpp
+    ${PROJECT_SOURCE_DIR}/src/gui/LionLookAndFeel.cpp
+    ${PROJECT_SOURCE_DIR}/src/gui/SteelBackground.cpp)
+
 juce_add_plugin(LionVoice
     PRODUCT_NAME "Lion Voice"
     VERSION ${PROJECT_VERSION}
@@ -58,9 +68,7 @@ juce_add_plugin(LionVoice
 
 target_sources(LionVoice
     PRIVATE
-        src/Parameters.cpp
-        src/PluginProcessor.cpp
-        src/PluginEditor.cpp)
+        ${LIONVOICE_PLUGIN_SOURCES})
 
 target_include_directories(LionVoice
     PRIVATE
@@ -85,4 +93,9 @@ target_link_libraries(LionVoice
 if(LIONVOICE_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
+endif()
+
+# --- Developer tools --------------------------------------------------------------
+if(LIONVOICE_BUILD_TOOLS)
+    add_subdirectory(tools)
 endif()

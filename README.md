@@ -89,6 +89,7 @@ src/                                plugin processor, editor, parameters
 src/dsp/                            DSP code, independent of JUCE and the GUI
 src/gui/                            look-and-feel, panels, meters, logo
 tests/                              DSP unit tests (Catch2)
+tools/                              developer tools (GUI snapshot renderer)
 scripts/                            helper scripts (validation)
 ```
 
