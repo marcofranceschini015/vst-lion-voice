@@ -19,7 +19,8 @@ add_subdirectory(libs/JUCE)
 # --- DSP library (pure C++, no JUCE) -------------------------------------------
 # Shared by the plugin and the unit tests. JUCE is only used here for its recommended compiler flags.
 add_library(LionVoiceDsp STATIC
-    src/dsp/BiquadDesign.cpp)
+    src/dsp/BiquadDesign.cpp
+    src/dsp/SubtractiveEq.cpp)
 
 target_include_directories(LionVoiceDsp
     PUBLIC

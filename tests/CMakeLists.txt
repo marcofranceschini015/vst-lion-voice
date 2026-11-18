@@ -14,7 +14,9 @@ FetchContent_MakeAvailable(Catch2)
 add_executable(LionVoiceDspTests
     BiquadTests.cpp
     GainStageTests.cpp
-    SmootherTests.cpp)
+    ModuleBypassTests.cpp
+    SmootherTests.cpp
+    SubtractiveEqTests.cpp)
 
 target_link_libraries(LionVoiceDspTests
     PRIVATE

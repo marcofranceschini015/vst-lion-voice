@@ -4,9 +4,12 @@
 #pragma once
 
 #include "dsp/GainStage.h"
+#include "dsp/ModuleBypass.h"
+#include "dsp/SubtractiveEq.h"
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
+#include <array>
 #include <atomic>
 
 /**
@@ -15,7 +18,7 @@
     The host (DAW) calls processBlock() on its real-time audio thread with small blocks of samples.
     Code in that path must never allocate memory, take locks or wait on anything.
 
-    Signal chain (current stage: only the gain stages are active):
+    Signal chain (current stage: gain stages and subtractive EQ are active):
         IN gain -> Subtractive EQ -> Leveler -> Character comp -> Main EQ -> Saturation -> De-esser -> OUT gain
 */
 class LionVoiceAudioProcessor final : public juce::AudioProcessor
@@ -59,13 +62,26 @@ public:
     juce::AudioProcessorValueTreeState& getParameters() noexcept { return parameters; }
 
 private:
+    /** Reads the subtractive EQ parameters into one settings struct (audio thread, lock-free). */
+    lionvoice::dsp::SubtractiveEqSettings readSubtractiveEqSettings() const noexcept;
+
     juce::AudioProcessorValueTreeState parameters;
 
     // Live parameter values, written by the host/GUI and read lock-free on the audio thread.
     std::atomic<float>* inGainDb = nullptr;
     std::atomic<float>* outGainDb = nullptr;
 
+    std::atomic<float>* subBypass = nullptr;
+    std::atomic<float>* subHpfFreq = nullptr;
+    std::atomic<float>* subHpfSlope = nullptr;
+    std::array<std::atomic<float>*, lionvoice::dsp::SubtractiveEqSettings::numBands> subBandFreq {};
+    std::array<std::atomic<float>*, lionvoice::dsp::SubtractiveEqSettings::numBands> subBandCut {};
+    std::array<std::atomic<float>*, lionvoice::dsp::SubtractiveEqSettings::numBands> subBandQ {};
+
+    // Signal chain, in processing order.
     lionvoice::dsp::GainStage inputGain;
+    lionvoice::dsp::ModuleBypass subtractiveEqBypass;
+    lionvoice::dsp::SubtractiveEq subtractiveEq;
     lionvoice::dsp::GainStage outputGain;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LionVoiceAudioProcessor)

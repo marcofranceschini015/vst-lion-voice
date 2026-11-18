@@ -20,20 +20,60 @@ LionVoiceAudioProcessor::LionVoiceAudioProcessor()
                           .withOutput ("Output", juce::AudioChannelSet::stereo(), true))
     , parameters (*this, nullptr, stateType, lionvoice::params::createLayout())
 {
-    inGainDb = parameters.getRawParameterValue (lionvoice::params::inGain);
-    outGainDb = parameters.getRawParameterValue (lionvoice::params::outGain);
+    namespace params = lionvoice::params;
 
-    jassert (inGainDb != nullptr && outGainDb != nullptr);
+    auto get = [this] (const char* id)
+    {
+        auto* value = parameters.getRawParameterValue (id);
+        jassert (value != nullptr); // unknown parameter ID
+        return value;
+    };
+
+    inGainDb = get (params::inGain);
+    outGainDb = get (params::outGain);
+
+    subBypass = get (params::subBypass);
+    subHpfFreq = get (params::subHpfFreq);
+    subHpfSlope = get (params::subHpfSlope);
+
+    for (std::size_t b = 0; b < params::subBands.size(); ++b)
+    {
+        subBandFreq[b] = get (params::subBands[b].freqId);
+        subBandCut[b] = get (params::subBands[b].cutId);
+        subBandQ[b] = get (params::subBands[b].qId);
+    }
 }
 
 void LionVoiceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Set the targets first: prepare() then jumps straight to them (no fade-in at playback start).
+    const int numChannels = getTotalNumInputChannels();
+
+    // Set the targets first: prepare() then jumps straight to them (no ramps when playback starts).
     inputGain.setGainDb (inGainDb->load());
     outputGain.setGainDb (outGainDb->load());
+    subtractiveEq.setSettings (readSubtractiveEqSettings());
+    subtractiveEqBypass.setBypassed (subBypass->load() >= 0.5f);
 
     inputGain.prepare (sampleRate, samplesPerBlock);
+    subtractiveEqBypass.prepare (sampleRate, samplesPerBlock, numChannels);
+    subtractiveEq.prepare (sampleRate);
     outputGain.prepare (sampleRate, samplesPerBlock);
+}
+
+lionvoice::dsp::SubtractiveEqSettings LionVoiceAudioProcessor::readSubtractiveEqSettings() const noexcept
+{
+    constexpr auto relaxed = std::memory_order_relaxed;
+
+    lionvoice::dsp::SubtractiveEqSettings settings;
+    settings.hpfFrequency = subHpfFreq->load (relaxed);
+    settings.hpfSlope = subHpfSlope->load (relaxed) >= 0.5f ? lionvoice::dsp::HpfSlope::db18
+                                                            : lionvoice::dsp::HpfSlope::db12;
+
+    for (std::size_t b = 0; b < settings.bands.size(); ++b)
+        settings.bands[b] = { subBandFreq[b]->load (relaxed), subBandCut[b]->load (relaxed),
+                              subBandQ[b]->load (relaxed) };
+
+    return settings;
 }
 
 void LionVoiceAudioProcessor::releaseResources() {}
@@ -63,12 +103,21 @@ void LionVoiceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     const int numSamples = buffer.getNumSamples();
 
     // Read each parameter once per block.
-    inputGain.setGainDb (inGainDb->load (std::memory_order_relaxed));
-    outputGain.setGainDb (outGainDb->load (std::memory_order_relaxed));
+    constexpr auto relaxed = std::memory_order_relaxed;
+    inputGain.setGainDb (inGainDb->load (relaxed));
+    subtractiveEq.setSettings (readSubtractiveEqSettings());
+    subtractiveEqBypass.setBypassed (subBypass->load (relaxed) >= 0.5f);
+    outputGain.setGainDb (outGainDb->load (relaxed));
 
+    // --- Chain ---------------------------------------------------------------
     inputGain.process (channels, numChannels, numSamples);
 
-    // Subtractive EQ (next step) -> Leveler -> Character comp -> Main EQ -> Saturation -> De-esser
+    subtractiveEqBypass.process (
+        channels, numChannels, numSamples,
+        [this] (float* const* ch, int nc, int ns) { subtractiveEq.process (ch, nc, ns); },
+        [this] { subtractiveEq.reset(); });
+
+    // Leveler -> Character comp -> Main EQ -> Saturation -> De-esser   (future modules)
 
     outputGain.process (channels, numChannels, numSamples);
 }
