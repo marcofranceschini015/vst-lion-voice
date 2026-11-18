@@ -5,9 +5,16 @@
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 
 namespace lionvoice::dsp
 {
+
+/** Intentional exact floating-point comparison (e.g. "is this exactly the same target?"). */
+inline bool exactlyEqual (float a, float b) noexcept
+{
+    return std::equal_to<float>() (a, b);
+}
 
 /**
     Moves a value towards a target in a straight line over a fixed time.
@@ -43,7 +50,7 @@ public:
     /** Starts a ramp from the current value to a new target. */
     void setTarget (float newTarget) noexcept
     {
-        if (newTarget == target)
+        if (exactlyEqual (newTarget, target))
             return;
 
         target = newTarget;

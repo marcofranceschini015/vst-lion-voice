@@ -57,6 +57,7 @@ juce_add_plugin(LionVoice
 
 target_sources(LionVoice
     PRIVATE
+        src/Parameters.cpp
         src/PluginProcessor.cpp
         src/PluginEditor.cpp)
 

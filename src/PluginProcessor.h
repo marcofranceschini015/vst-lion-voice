@@ -3,7 +3,11 @@
 
 #pragma once
 
+#include "dsp/GainStage.h"
+
 #include <juce_audio_processors/juce_audio_processors.h>
+
+#include <atomic>
 
 /**
     The audio side of Lion Voice.
@@ -11,7 +15,8 @@
     The host (DAW) calls processBlock() on its real-time audio thread with small blocks of samples.
     Code in that path must never allocate memory, take locks or wait on anything.
 
-    Current stage: passthrough (audio leaves exactly as it arrives).
+    Signal chain (current stage: only the gain stages are active):
+        IN gain -> Subtractive EQ -> Leveler -> Character comp -> Main EQ -> Saturation -> De-esser -> OUT gain
 */
 class LionVoiceAudioProcessor final : public juce::AudioProcessor
 {
@@ -50,6 +55,18 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    /** All parameters. The GUI attaches its controls to this. */
+    juce::AudioProcessorValueTreeState& getParameters() noexcept { return parameters; }
+
 private:
+    juce::AudioProcessorValueTreeState parameters;
+
+    // Live parameter values, written by the host/GUI and read lock-free on the audio thread.
+    std::atomic<float>* inGainDb = nullptr;
+    std::atomic<float>* outGainDb = nullptr;
+
+    lionvoice::dsp::GainStage inputGain;
+    lionvoice::dsp::GainStage outputGain;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LionVoiceAudioProcessor)
 };

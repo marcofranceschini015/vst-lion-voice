@@ -13,6 +13,7 @@ FetchContent_MakeAvailable(Catch2)
 
 add_executable(LionVoiceDspTests
     BiquadTests.cpp
+    GainStageTests.cpp
     SmootherTests.cpp)
 
 target_link_libraries(LionVoiceDspTests

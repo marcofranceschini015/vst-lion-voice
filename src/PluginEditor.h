@@ -8,7 +8,8 @@
 /**
     The plugin window. Runs on the message (GUI) thread, never on the audio thread.
 
-    Current stage: placeholder window. The SSL-style interface arrives in later steps.
+    Current stage: not in use. createEditor() temporarily returns JUCE's GenericAudioProcessorEditor;
+    this class comes back as the SSL-style interface in a later step.
 */
 class LionVoiceAudioProcessorEditor final : public juce::AudioProcessorEditor
 {
