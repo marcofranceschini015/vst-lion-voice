@@ -4,6 +4,7 @@
 #pragma once
 
 #include "dsp/GainStage.h"
+#include "dsp/LevelMeter.h"
 #include "dsp/ModuleBypass.h"
 #include "dsp/SubtractiveEq.h"
 
@@ -61,6 +62,10 @@ public:
     /** All parameters. The GUI attaches its controls to this. */
     juce::AudioProcessorValueTreeState& getParameters() noexcept { return parameters; }
 
+    /** Level meters for the GUI: IN is measured after the input gain, OUT after the output gain. */
+    lionvoice::dsp::LevelMeter& getInputMeter() noexcept { return inputMeter; }
+    lionvoice::dsp::LevelMeter& getOutputMeter() noexcept { return outputMeter; }
+
 private:
     /** Reads the subtractive EQ parameters into one settings struct (audio thread, lock-free). */
     lionvoice::dsp::SubtractiveEqSettings readSubtractiveEqSettings() const noexcept;
@@ -83,6 +88,9 @@ private:
     lionvoice::dsp::ModuleBypass subtractiveEqBypass;
     lionvoice::dsp::SubtractiveEq subtractiveEq;
     lionvoice::dsp::GainStage outputGain;
+
+    lionvoice::dsp::LevelMeter inputMeter;
+    lionvoice::dsp::LevelMeter outputMeter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LionVoiceAudioProcessor)
 };

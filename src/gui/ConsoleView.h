@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "ChainPanel.h"
+#include "InOutPanel.h"
 #include "InactivePanels.h"
 #include "Layout.h"
 #include "Panel.h"
@@ -18,13 +20,13 @@ namespace lionvoice::gui
     The whole console, always laid out at the design size (layout::baseWidth x baseHeight).
     The editor scales it as one piece with an AffineTransform, so everything stays proportional and sharp.
 
-    Current stage: all module panels; only the Subtractive EQ is live. The chain lights, the logo and the
-    IN/OUT faders arrive in the next steps.
+    Live: IN/OUT faders and meters, Subtractive EQ, chain LEDs. The other modules are shown as
+    "coming soon" placeholders.
 */
 class ConsoleView final : public juce::Component
 {
 public:
-    explicit ConsoleView (juce::AudioProcessorValueTreeState& state);
+    ConsoleView (juce::AudioProcessorValueTreeState& state, dsp::LevelMeter& inputMeter, dsp::LevelMeter& outputMeter);
 
     void paint (juce::Graphics& g) override;
     void resized() override;
@@ -36,12 +38,12 @@ private:
 
     LevelerPanel leveler;
     CharacterPanel character;
-    Panel chain { "CHAIN", PanelSymbol::none, false };
+    ChainPanel chain;
     SubtractiveEqPanel subtractiveEq;
     MainEqPanel mainEq;
     DeEsserPanel deEsser;
     SaturationPanel saturation;
-    Panel inOut { "IN / OUT", PanelSymbol::none, false };
+    InOutPanel inOut;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConsoleView)
 };

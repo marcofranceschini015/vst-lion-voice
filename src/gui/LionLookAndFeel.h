@@ -27,6 +27,16 @@ public:
     void drawToggleButton (juce::Graphics& g, juce::ToggleButton& button, bool shouldDrawButtonAsHighlighted,
                            bool shouldDrawButtonAsDown) override;
 
+    void drawLinearSlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos, float minSliderPos,
+                           float maxSliderPos, juce::Slider::SliderStyle style, juce::Slider& slider) override;
+
+    int getSliderThumbRadius (juce::Slider& slider) override;
+
+    /** Draws a console fader: engraved slot, scale ticks and a grey cap centred at capCentreY. */
+    static void drawFader (juce::Graphics& g, juce::Rectangle<float> track, float capCentreY);
+
+    static constexpr float faderCapHeight = 30.0f;
+
     /** Draws one knob; also used directly by previews. */
     static void drawKnob (juce::Graphics& g, juce::Rectangle<float> bounds, float proportion, float startAngle,
                           float endAngle, juce::Colour capColour);

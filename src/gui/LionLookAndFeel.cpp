@@ -116,6 +116,81 @@ void LionLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& b
              button.findColour (juce::ToggleButton::tickColourId));
 }
 
+void LionLookAndFeel::drawLinearSlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
+                                        float minSliderPos, float maxSliderPos, juce::Slider::SliderStyle style,
+                                        juce::Slider& slider)
+{
+    if (style != juce::Slider::LinearVertical)
+    {
+        LookAndFeel_V4::drawLinearSlider (g, x, y, width, height, sliderPos, minSliderPos, maxSliderPos, style, slider);
+        return;
+    }
+
+    drawFader (g, juce::Rectangle<int> (x, y, width, height).toFloat(), sliderPos);
+}
+
+int LionLookAndFeel::getSliderThumbRadius (juce::Slider& slider)
+{
+    // Keeps the fader cap fully inside the component at both ends of its travel.
+    if (slider.getSliderStyle() == juce::Slider::LinearVertical)
+        return static_cast<int> (faderCapHeight * 0.5f);
+
+    return LookAndFeel_V4::getSliderThumbRadius (slider);
+}
+
+void LionLookAndFeel::drawFader (juce::Graphics& g, juce::Rectangle<float> track, float capCentreY)
+{
+    const float centreX = track.getCentreX();
+
+    // Scale: a tick every 1/8 of the travel (6 dB on a -24..+24 range), longer at the centre (0 dB).
+    for (int i = 0; i <= 8; ++i)
+    {
+        const float ty = track.getBottom() - track.getHeight() * static_cast<float> (i) / 8.0f;
+        const float length = i == 4 ? track.getWidth() * 0.5f : track.getWidth() * 0.32f;
+        g.setColour (palette::engraveHighlight);
+        g.fillRect (juce::Rectangle<float> (centreX - length, ty + 0.6f, length * 2.0f, 1.0f));
+        g.setColour (palette::engraveInkSoft);
+        g.fillRect (juce::Rectangle<float> (centreX - length, ty - 0.4f, length * 2.0f, 1.0f));
+    }
+
+    // Slot cut into the steel.
+    const auto slot = juce::Rectangle<float> (5.0f, track.getHeight() + 8.0f).withCentre (track.getCentre());
+    g.setColour (juce::Colours::black.withAlpha (0.75f));
+    g.fillRoundedRectangle (slot, 2.5f);
+    g.setColour (palette::engraveHighlight);
+    g.drawRoundedRectangle (slot.translated (0.0f, 0.8f), 2.5f, 0.8f);
+
+    // Cap.
+    const float capWidth = std::min (track.getWidth() + 4.0f, 26.0f);
+    const auto cap = juce::Rectangle<float> (capWidth, faderCapHeight).withCentre ({ centreX, capCentreY });
+
+    juce::Path capPath;
+    capPath.addRoundedRectangle (cap, 3.0f);
+    juce::DropShadow (juce::Colours::black.withAlpha (0.5f), 6, { 0, 3 }).drawForPath (g, capPath);
+
+    g.setGradientFill (juce::ColourGradient (juce::Colour (0xffdfe2e5), cap.getX(), cap.getY(), juce::Colour (0xff7f8489),
+                                             cap.getX(), cap.getBottom(), false));
+    g.fillPath (capPath);
+
+    // Grip ridges and the centre line.
+    for (int i = -2; i <= 2; ++i)
+    {
+        if (i == 0)
+            continue;
+        const float ry = cap.getCentreY() + static_cast<float> (i) * cap.getHeight() * 0.16f;
+        g.setColour (juce::Colours::black.withAlpha (0.25f));
+        g.fillRect (juce::Rectangle<float> (cap.getX() + 3.0f, ry, cap.getWidth() - 6.0f, 1.0f));
+        g.setColour (juce::Colours::white.withAlpha (0.35f));
+        g.fillRect (juce::Rectangle<float> (cap.getX() + 3.0f, ry + 1.0f, cap.getWidth() - 6.0f, 1.0f));
+    }
+
+    g.setColour (palette::capBlack);
+    g.fillRect (juce::Rectangle<float> (cap.getX() + 2.0f, cap.getCentreY() - 1.0f, cap.getWidth() - 4.0f, 2.0f));
+
+    g.setColour (juce::Colours::black.withAlpha (0.6f));
+    g.drawRoundedRectangle (cap, 3.0f, 0.8f);
+}
+
 void LionLookAndFeel::drawKey (juce::Graphics& g, juce::Rectangle<float> bounds, bool isOn, bool isDown,
                                juce::Colour ledColour)
 {

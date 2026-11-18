@@ -2,14 +2,18 @@
 // Copyright (C) 2026 Marco Franceschini
 
 #include "ConsoleView.h"
+#include "LionLogo.h"
 #include "SteelBackground.h"
 
 namespace lionvoice::gui
 {
 
-ConsoleView::ConsoleView (juce::AudioProcessorValueTreeState& state)
+ConsoleView::ConsoleView (juce::AudioProcessorValueTreeState& state, dsp::LevelMeter& inputMeter,
+                          dsp::LevelMeter& outputMeter)
     : slots (layout::computeSlots())
+    , chain (state)
     , subtractiveEq (state)
+    , inOut (state, inputMeter, outputMeter)
 {
     for (auto* panel : std::initializer_list<juce::Component*> { &leveler, &character, &chain, &subtractiveEq, &mainEq,
                                                                   &deEsser, &saturation, &inOut })
@@ -51,8 +55,9 @@ void ConsoleView::paintTopBar (juce::Graphics& g) const
 {
     auto bar = slots.topBar.toFloat().reduced (10.0f, 0.0f);
 
-    // Space for the engraved lioness logo (added in a later step).
-    bar.removeFromLeft (52.0f);
+    // Engraved lioness, then the name. The right side of the bar stays free (future AI assistant button).
+    logo::drawEngravedLioness (g, bar.removeFromLeft (52.0f).reduced (0.0f, 2.0f));
+    bar.removeFromLeft (14.0f);
 
     steel::drawEngravedText (g, "LION VOICE", bar.removeFromLeft (260.0f), juce::Justification::centredLeft, 30.0f,
                              true, 0.18f);

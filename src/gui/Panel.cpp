@@ -56,22 +56,26 @@ void Panel::paint (juce::Graphics& g)
     auto titleArea = getLocalBounds().removeFromTop (titleHeight).reduced (12, 0).toFloat();
 
     const auto symbolArea = titleArea.removeFromRight (symbolSize).withSizeKeepingCentre (symbolSize, symbolSize * 0.8f);
+    // (setOpacity() would be undone by the colours set inside the helpers: use transparency layers.)
     if (symbol != PanelSymbol::none)
     {
-        juce::Graphics::ScopedSaveState state (g);
         if (! available)
-            g.setOpacity (0.6f);
+            g.beginTransparencyLayer (0.6f);
+
         drawPanelSymbol (g, symbol, symbolArea);
+
+        if (! available)
+            g.endTransparencyLayer();
     }
 
     steel::drawEngravedText (g, title, titleArea, juce::Justification::centredLeft, 13.0f);
 
     if (! available)
     {
-        g.setOpacity (0.75f);
+        g.beginTransparencyLayer (0.75f);
         steel::drawEngravedText (g, "COMING SOON", titleArea.withTrimmedRight (8.0f), juce::Justification::centredRight,
                                  9.0f, true, 0.12f);
-        g.setOpacity (1.0f);
+        g.endTransparencyLayer();
     }
 
     if (bypassKey != nullptr)

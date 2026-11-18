@@ -20,7 +20,7 @@ int scaled (int size, float scale)
 LionVoiceAudioProcessorEditor::LionVoiceAudioProcessorEditor (LionVoiceAudioProcessor& audioProcessor)
     : AudioProcessorEditor (audioProcessor)
     , processorRef (audioProcessor)
-    , console (audioProcessor.getParameters())
+    , console (audioProcessor.getParameters(), audioProcessor.getInputMeter(), audioProcessor.getOutputMeter())
 {
     // Read the saved size first: the resize-limit calls below already trigger resized(), which stores the size.
     const auto savedScale = static_cast<float> (

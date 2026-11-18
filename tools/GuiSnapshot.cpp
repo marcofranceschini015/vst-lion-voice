@@ -7,8 +7,10 @@
 //
 // Writes:
 //   console.png    the full plugin window at 100 % size (2x pixel density)
-//   controls.png   every knob colour and the key/LED states, enlarged
+//   controls.png   knob colours, keys/LEDs, fader, meter and the lioness logo, enlarged
 
+#include "gui/LevelMeterDisplay.h"
+#include "gui/LionLogo.h"
 #include "gui/LionLookAndFeel.h"
 #include "gui/Palette.h"
 #include "gui/SteelBackground.h"
@@ -48,7 +50,7 @@ juce::Image renderControlSheet()
     constexpr int cell = 90;
     constexpr float scale = 2.0f;
     const int width = cell * 8;
-    const int height = cell * 3 + 140;
+    const int height = cell * 3 + 140 + 240;
 
     juce::Image image (juce::Image::ARGB, juce::roundToInt (width * scale), juce::roundToInt (height * scale), true);
     juce::Graphics g (image);
@@ -80,6 +82,24 @@ juce::Image renderControlSheet()
     lionvoice::gui::steel::drawScrew (g, { 340.0f, y + 13.0f }, 6.0f, 0.5f);
     lionvoice::gui::steel::drawEngravedText (g, "KEYS / LEDS / SCREW", { 380.0f, y, 300.0f, 26.0f },
                                              juce::Justification::centredLeft, 12.0f);
+
+    // Fader, meter with sample levels, and the logo at a large size.
+    const float row = y + 60.0f;
+    LionLookAndFeel::drawFader (g, { 30.0f, row + 15.0f, 28.0f, 170.0f }, row + 80.0f);
+
+    using Display = lionvoice::gui::LevelMeterDisplay;
+    Display::ChannelState left, right;
+    left.peakDb = -8.0f;
+    left.holdDb = -4.0f;
+    left.rmsDb = -16.0f;
+    right.peakDb = -10.0f;
+    right.holdDb = -7.0f;
+    right.rmsDb = -19.0f;
+    right.clip = true;
+    const Display::ChannelState states[] = { left, right };
+    Display::drawMeter (g, { 90.0f, row, 22.0f, 200.0f }, states, 2, true);
+
+    lionvoice::gui::logo::drawEngravedLioness (g, { 200.0f, row - 20.0f, 330.0f, 230.0f });
 
     return image;
 }

@@ -43,9 +43,13 @@ set(LIONVOICE_PLUGIN_SOURCES
     ${PROJECT_SOURCE_DIR}/src/Parameters.cpp
     ${PROJECT_SOURCE_DIR}/src/PluginProcessor.cpp
     ${PROJECT_SOURCE_DIR}/src/PluginEditor.cpp
+    ${PROJECT_SOURCE_DIR}/src/gui/ChainPanel.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/ConsoleView.cpp
+    ${PROJECT_SOURCE_DIR}/src/gui/InOutPanel.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/InactivePanels.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/Knob.cpp
+    ${PROJECT_SOURCE_DIR}/src/gui/LevelMeterDisplay.cpp
+    ${PROJECT_SOURCE_DIR}/src/gui/LionLogo.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/LionLookAndFeel.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/Panel.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/PanelSymbols.cpp

@@ -59,6 +59,9 @@ void LionVoiceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBl
     subtractiveEqBypass.prepare (sampleRate, samplesPerBlock, numChannels);
     subtractiveEq.prepare (sampleRate);
     outputGain.prepare (sampleRate, samplesPerBlock);
+
+    inputMeter.prepare (sampleRate);
+    outputMeter.prepare (sampleRate);
 }
 
 lionvoice::dsp::SubtractiveEqSettings LionVoiceAudioProcessor::readSubtractiveEqSettings() const noexcept
@@ -112,6 +115,7 @@ void LionVoiceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
 
     // --- Chain ---------------------------------------------------------------
     inputGain.process (channels, numChannels, numSamples);
+    inputMeter.process (channels, numChannels, numSamples);
 
     subtractiveEqBypass.process (
         channels, numChannels, numSamples,
@@ -121,6 +125,7 @@ void LionVoiceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     // Leveler -> Character comp -> Main EQ -> Saturation -> De-esser   (future modules)
 
     outputGain.process (channels, numChannels, numSamples);
+    outputMeter.process (channels, numChannels, numSamples);
 }
 
 juce::AudioProcessorEditor* LionVoiceAudioProcessor::createEditor()
