@@ -59,6 +59,15 @@ inline constexpr std::array<SubBandSpec, 4> subBands { {
     { "sub_b4_freq", "sub_b4_cut", "sub_b4_q", "Harsh", 2000.0f, 4000.0f, 3000.0f },
 } };
 
+// Leveler (LA-2A style) ------------------------------------------------------- added in v0.2
+inline constexpr auto levBypass = "lev_bypass";
+inline constexpr auto levPeakReduction = "lev_peak_red";
+inline constexpr auto levGain = "lev_gain";
+inline constexpr auto levLimit = "lev_limit";
+
+inline constexpr float levPeakReductionDefault = 25.0f;
+inline constexpr float levGainMaxDb = 24.0f;
+
 /** Builds the full parameter list, used to construct the AudioProcessorValueTreeState. */
 juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
 

@@ -18,6 +18,7 @@ add_executable(LionVoiceDspTests
     DynamicsTests.cpp
     GainStageTests.cpp
     LevelMeterTests.cpp
+    LevelerTests.cpp
     ModuleBypassTests.cpp
     SmootherTests.cpp
     SubtractiveEqTests.cpp)

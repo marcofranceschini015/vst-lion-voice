@@ -96,6 +96,8 @@ TEST_CASE ("Parameter IDs never change", "[plugin]")
         "in_gain",     "sub_bypass", "sub_hpf_freq", "sub_hpf_slope", "sub_b1_freq", "sub_b1_cut",
         "sub_b1_q",    "sub_b2_freq", "sub_b2_cut",   "sub_b2_q",      "sub_b3_freq", "sub_b3_cut",
         "sub_b3_q",    "sub_b4_freq", "sub_b4_cut",   "sub_b4_q",      "out_gain",
+        // v0.2
+        "lev_bypass",  "lev_peak_red", "lev_gain",    "lev_limit",
     };
 
     juce::ScopedJuceInitialiser_GUI juce;
@@ -110,11 +112,22 @@ TEST_CASE ("Parameter IDs never change", "[plugin]")
         CHECK (actual.contains (id));
 }
 
-TEST_CASE ("Null test: with the EQ bypassed and 0 dB gains the plugin is bit-transparent", "[plugin]")
+TEST_CASE ("Null test: with every module bypassed and 0 dB gains the plugin is bit-transparent", "[plugin]")
 {
     juce::ScopedJuceInitialiser_GUI juce;
     auto plugin = makePlugin();
-    setParameter (*plugin, lionvoice::params::subBypass, 1.0f);
+
+    // Bypass every module, including the ones added in future versions (all bypass IDs end in "_bypass").
+    int bypassed = 0;
+    for (auto* parameter : plugin->getParameters().processor.getParameters())
+        if (auto* withId = dynamic_cast<juce::AudioProcessorParameterWithID*> (parameter))
+            if (withId->paramID.endsWith ("_bypass"))
+            {
+                parameter->setValueNotifyingHost (1.0f);
+                ++bypassed;
+            }
+    CHECK (bypassed >= 2);
+
     plugin->prepareToPlay (sampleRate, blockSize); // start fully bypassed (no crossfade in progress)
 
     auto audio = makeNoise (2, 48000);

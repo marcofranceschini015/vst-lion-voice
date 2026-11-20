@@ -5,6 +5,7 @@
 
 #include "dsp/GainStage.h"
 #include "dsp/LevelMeter.h"
+#include "dsp/Leveler.h"
 #include "dsp/ModuleBypass.h"
 #include "dsp/SubtractiveEq.h"
 
@@ -19,7 +20,7 @@
     The host (DAW) calls processBlock() on its real-time audio thread with small blocks of samples.
     Code in that path must never allocate memory, take locks or wait on anything.
 
-    Signal chain (current stage: gain stages and subtractive EQ are active):
+    Signal chain (active so far: gain stages, subtractive EQ, leveler):
         IN gain -> Subtractive EQ -> Leveler -> Character comp -> Main EQ -> Saturation -> De-esser -> OUT gain
 */
 class LionVoiceAudioProcessor final : public juce::AudioProcessor
@@ -66,9 +67,13 @@ public:
     lionvoice::dsp::LevelMeter& getInputMeter() noexcept { return inputMeter; }
     lionvoice::dsp::LevelMeter& getOutputMeter() noexcept { return outputMeter; }
 
+    /** Modules whose state the GUI displays (gain reduction meters). */
+    const lionvoice::dsp::Leveler& getLeveler() const noexcept { return leveler; }
+
 private:
     /** Reads the subtractive EQ parameters into one settings struct (audio thread, lock-free). */
     lionvoice::dsp::SubtractiveEqSettings readSubtractiveEqSettings() const noexcept;
+    lionvoice::dsp::LevelerSettings readLevelerSettings() const noexcept;
 
     juce::AudioProcessorValueTreeState parameters;
 
@@ -83,10 +88,17 @@ private:
     std::array<std::atomic<float>*, lionvoice::dsp::SubtractiveEqSettings::numBands> subBandCut {};
     std::array<std::atomic<float>*, lionvoice::dsp::SubtractiveEqSettings::numBands> subBandQ {};
 
+    std::atomic<float>* levBypass = nullptr;
+    std::atomic<float>* levPeakReduction = nullptr;
+    std::atomic<float>* levGain = nullptr;
+    std::atomic<float>* levLimit = nullptr;
+
     // Signal chain, in processing order.
     lionvoice::dsp::GainStage inputGain;
     lionvoice::dsp::ModuleBypass subtractiveEqBypass;
     lionvoice::dsp::SubtractiveEq subtractiveEq;
+    lionvoice::dsp::ModuleBypass levelerBypass;
+    lionvoice::dsp::Leveler leveler;
     lionvoice::dsp::GainStage outputGain;
 
     lionvoice::dsp::LevelMeter inputMeter;

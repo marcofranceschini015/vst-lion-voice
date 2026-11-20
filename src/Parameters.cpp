@@ -10,8 +10,12 @@ namespace lionvoice::params
 namespace
 {
 
-/** Version hint for juce::ParameterID. Bump only for parameters added in a later release. */
-constexpr int firstVersion = 1;
+/**
+    Version hints for juce::ParameterID: the release in which a parameter first appeared.
+    Hosts (AU in particular) use them to keep the parameter order stable across updates.
+*/
+constexpr int firstVersion = 1; // v0.1
+constexpr int mvp2Version = 2;  // v0.2
 
 using Attributes = juce::AudioParameterFloatAttributes;
 
@@ -54,10 +58,10 @@ juce::NormalisableRange<float> logRange (float min, float max, float step)
 // Factories ------------------------------------------------------------------
 
 std::unique_ptr<juce::AudioParameterFloat> makeDb (const char* id, const juce::String& name, float min, float max,
-                                                   float defaultValue)
+                                                   float defaultValue, int version = firstVersion)
 {
     return std::make_unique<juce::AudioParameterFloat> (
-        juce::ParameterID { id, firstVersion }, name, juce::NormalisableRange<float> { min, max, gainStepDb },
+        juce::ParameterID { id, version }, name, juce::NormalisableRange<float> { min, max, gainStepDb },
         defaultValue, Attributes().withLabel ("dB").withStringFromValueFunction (formatDb));
 }
 
@@ -98,6 +102,22 @@ std::unique_ptr<juce::AudioProcessorParameterGroup> makeSubtractiveEqGroup()
     return group;
 }
 
+std::unique_ptr<juce::AudioProcessorParameterGroup> makeLevelerGroup()
+{
+    auto group = std::make_unique<juce::AudioProcessorParameterGroup> ("leveler", "Leveler", " | ");
+
+    group->addChild (std::make_unique<juce::AudioParameterBool> (juce::ParameterID { levBypass, mvp2Version },
+                                                                 "Leveler Bypass", false));
+    group->addChild (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { levPeakReduction, mvp2Version }, "Leveler Peak Reduction",
+        juce::NormalisableRange<float> { 0.0f, 100.0f, 0.1f }, levPeakReductionDefault,
+        Attributes().withStringFromValueFunction ([] (float value, int) { return juce::String (value, 1); })));
+    group->addChild (makeDb (levGain, "Leveler Gain", 0.0f, levGainMaxDb, 0.0f, mvp2Version));
+    group->addChild (std::make_unique<juce::AudioParameterBool> (juce::ParameterID { levLimit, mvp2Version },
+                                                                 "Leveler Limit", false));
+    return group;
+}
+
 } // namespace
 
 juce::AudioProcessorValueTreeState::ParameterLayout createLayout()
@@ -106,6 +126,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout createLayout()
 
     layout.add (makeDb (inGain, "Input Gain", gainMinDb, gainMaxDb, gainDefaultDb));
     layout.add (makeSubtractiveEqGroup());
+    layout.add (makeLevelerGroup());
     layout.add (makeDb (outGain, "Output Gain", gainMinDb, gainMaxDb, gainDefaultDb));
 
     return layout;
