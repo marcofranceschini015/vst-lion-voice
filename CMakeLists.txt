@@ -50,12 +50,14 @@ set(LIONVOICE_PLUGIN_SOURCES
     ${PROJECT_SOURCE_DIR}/src/gui/InactivePanels.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/Knob.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/LevelMeterDisplay.cpp
+    ${PROJECT_SOURCE_DIR}/src/gui/LevelerPanel.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/LionLogo.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/LionLookAndFeel.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/Panel.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/PanelSymbols.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/SteelBackground.cpp
-    ${PROJECT_SOURCE_DIR}/src/gui/SubtractiveEqPanel.cpp)
+    ${PROJECT_SOURCE_DIR}/src/gui/SubtractiveEqPanel.cpp
+    ${PROJECT_SOURCE_DIR}/src/gui/VuMeter.cpp)
 
 juce_add_plugin(LionVoice
     PRODUCT_NAME "Lion Voice"

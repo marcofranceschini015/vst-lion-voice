@@ -6,8 +6,10 @@
 #include "ChainPanel.h"
 #include "InOutPanel.h"
 #include "InactivePanels.h"
+#include "LevelerPanel.h"
 #include "Layout.h"
 #include "Panel.h"
+#include "PluginProcessor.h"
 #include "SubtractiveEqPanel.h"
 
 #include <juce_audio_processors/juce_audio_processors.h>
@@ -20,13 +22,13 @@ namespace lionvoice::gui
     The whole console, always laid out at the design size (layout::baseWidth x baseHeight).
     The editor scales it as one piece with an AffineTransform, so everything stays proportional and sharp.
 
-    Live: IN/OUT faders and meters, Subtractive EQ, chain LEDs. The other modules are shown as
+    Live: IN/OUT faders and meters, Subtractive EQ, Leveler, chain LEDs. The other modules are shown as
     "coming soon" placeholders.
 */
 class ConsoleView final : public juce::Component
 {
 public:
-    ConsoleView (juce::AudioProcessorValueTreeState& state, dsp::LevelMeter& inputMeter, dsp::LevelMeter& outputMeter);
+    explicit ConsoleView (LionVoiceAudioProcessor& processor);
 
     void paint (juce::Graphics& g) override;
     void resized() override;

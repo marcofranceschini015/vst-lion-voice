@@ -14,6 +14,7 @@
 #include "gui/LionLookAndFeel.h"
 #include "gui/Palette.h"
 #include "gui/SteelBackground.h"
+#include "gui/VuMeter.h"
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_gui_basics/juce_gui_basics.h>
@@ -99,7 +100,11 @@ juce::Image renderControlSheet()
     const Display::ChannelState states[] = { left, right };
     Display::drawMeter (g, { 90.0f, row, 22.0f, 200.0f }, states, 2, true);
 
-    lionvoice::gui::logo::drawEngravedLioness (g, { 200.0f, row - 20.0f, 330.0f, 230.0f });
+    lionvoice::gui::logo::drawEngravedLioness (g, { 200.0f, row - 20.0f, 250.0f, 230.0f });
+
+    // VU meter in gain-reduction mode, needle at 6 dB of reduction.
+    using lionvoice::gui::VuMeter;
+    VuMeter::drawMeter (g, { 470.0f, row + 30.0f, 220.0f, 130.0f }, VuMeter::dbToPosition (-6.0f), "VU");
 
     return image;
 }

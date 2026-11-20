@@ -17,22 +17,6 @@
 namespace lionvoice::gui
 {
 
-/** LA-2A style optical compressor: VU meter, GAIN, PEAK REDUCTION, COMP/LIMIT. */
-class LevelerPanel final : public Panel
-{
-public:
-    LevelerPanel();
-
-private:
-    void layoutContent (juce::Rectangle<int> contentArea) override;
-    void paintContent (juce::Graphics& g, juce::Rectangle<int> contentArea) override;
-
-    Knob gain { "GAIN", palette::capGrey };
-    Knob peakReduction { "PEAK REDUCTION", palette::capGrey };
-    juce::ToggleButton limitKey { "LIMIT" };
-    juce::Rectangle<int> meterArea;
-};
-
 /** 1176 style FET compressor: INPUT, OUTPUT, ATTACK, RELEASE, RATIO keys, MIX. */
 class CharacterPanel final : public Panel
 {

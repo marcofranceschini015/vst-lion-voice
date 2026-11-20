@@ -9,64 +9,6 @@ namespace lionvoice::gui
 namespace
 {
 
-/** Classic VU meter face (cream dial, scale, red zone, needle at rest). */
-void drawVuMeter (juce::Graphics& g, juce::Rectangle<float> area)
-{
-    // Bezel cut into the steel.
-    g.setColour (juce::Colours::black.withAlpha (0.6f));
-    g.fillRoundedRectangle (area.expanded (2.0f), 6.0f);
-
-    const auto face = area.reduced (2.0f);
-
-    // Everything below stays inside the dial (the needle pivot sits below its lower edge).
-    juce::Graphics::ScopedSaveState clip (g);
-    juce::Path facePath;
-    facePath.addRoundedRectangle (face, 4.0f);
-    g.reduceClipRegion (facePath);
-
-    g.setGradientFill (juce::ColourGradient (juce::Colour (0xfff3e7c4), face.getCentreX(), face.getY(),
-                                             juce::Colour (0xffd9c690), face.getCentreX(), face.getBottom(), false));
-    g.fillRoundedRectangle (face, 4.0f);
-
-    const auto pivot = juce::Point<float> (face.getCentreX(), face.getBottom() + face.getHeight() * 0.25f);
-    const float radius = face.getHeight() * 0.95f;
-    const float start = -0.8f;
-    const float end = 0.8f;
-    const float redStart = 0.35f;
-
-    juce::Path scale;
-    scale.addCentredArc (pivot.x, pivot.y, radius, radius, 0.0f, start, redStart, true);
-    g.setColour (juce::Colour (0xff2a2418));
-    g.strokePath (scale, juce::PathStrokeType (1.5f));
-
-    juce::Path red;
-    red.addCentredArc (pivot.x, pivot.y, radius, radius, 0.0f, redStart, end, true);
-    g.setColour (juce::Colour (0xffb8261c));
-    g.strokePath (red, juce::PathStrokeType (3.0f));
-
-    for (int i = 0; i <= 10; ++i)
-    {
-        const float a = start + (end - start) * static_cast<float> (i) / 10.0f;
-        g.setColour (a > redStart ? juce::Colour (0xffb8261c) : juce::Colour (0xff2a2418));
-        g.drawLine ({ pivot.getPointOnCircumference (radius, a), pivot.getPointOnCircumference (radius + 7.0f, a) },
-                    1.4f);
-    }
-
-    g.setColour (juce::Colour (0xff2a2418));
-    g.setFont (juce::FontOptions (14.0f, juce::Font::bold));
-    g.drawText ("VU", face.withTrimmedTop (face.getHeight() * 0.5f), juce::Justification::centred, false);
-
-    // Needle resting on the left.
-    g.setColour (juce::Colour (0xff1a1a1a));
-    g.drawLine ({ pivot.getPointOnCircumference (radius * 0.35f, start - 0.05f),
-                  pivot.getPointOnCircumference (radius + 4.0f, start - 0.05f) },
-                1.6f);
-
-    // Glass reflection.
-    g.setColour (juce::Colours::white.withAlpha (0.18f));
-    g.fillRoundedRectangle (face.withHeight (face.getHeight() * 0.35f).reduced (3.0f, 2.0f), 3.0f);
-}
-
 /** Splits an area into equal columns. */
 template <std::size_t N>
 std::array<juce::Rectangle<int>, N> columns (juce::Rectangle<int> area)
@@ -81,36 +23,6 @@ std::array<juce::Rectangle<int>, N> columns (juce::Rectangle<int> area)
 constexpr int sectionLabelHeight = 14;
 
 } // namespace
-
-// ---------------------------------------------------------------------------------------------
-LevelerPanel::LevelerPanel()
-    : Panel ("LEVELER", PanelSymbol::leveler, true)
-{
-    gain.setPlaceholderPosition (0.5);
-    peakReduction.setPlaceholderPosition (0.35);
-    addAndMakeVisible (gain);
-    addAndMakeVisible (peakReduction);
-    addAndMakeVisible (limitKey);
-    setAvailable (false);
-}
-
-void LevelerPanel::layoutContent (juce::Rectangle<int> area)
-{
-    meterArea = area.removeFromLeft (230).withSizeKeepingCentre (220, 130);
-    area.removeFromLeft (20);
-
-    auto keyColumn = area.removeFromRight (90);
-    limitKey.setBounds (keyColumn.withSizeKeepingCentre (80, 26));
-
-    const auto knobs = columns<2> (area);
-    gain.setBounds (knobs[0].withSizeKeepingCentre (100, 115));
-    peakReduction.setBounds (knobs[1].withSizeKeepingCentre (100, 115));
-}
-
-void LevelerPanel::paintContent (juce::Graphics& g, juce::Rectangle<int>)
-{
-    drawVuMeter (g, meterArea.toFloat());
-}
 
 // ---------------------------------------------------------------------------------------------
 CharacterPanel::CharacterPanel()

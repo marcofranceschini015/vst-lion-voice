@@ -8,12 +8,12 @@
 namespace lionvoice::gui
 {
 
-ConsoleView::ConsoleView (juce::AudioProcessorValueTreeState& state, dsp::LevelMeter& inputMeter,
-                          dsp::LevelMeter& outputMeter)
+ConsoleView::ConsoleView (LionVoiceAudioProcessor& processor)
     : slots (layout::computeSlots())
-    , chain (state)
-    , subtractiveEq (state)
-    , inOut (state, inputMeter, outputMeter)
+    , leveler (processor.getParameters(), processor.getLeveler())
+    , chain (processor.getParameters())
+    , subtractiveEq (processor.getParameters())
+    , inOut (processor.getParameters(), processor.getInputMeter(), processor.getOutputMeter())
 {
     for (auto* panel : std::initializer_list<juce::Component*> { &leveler, &character, &chain, &subtractiveEq, &mainEq,
                                                                   &deEsser, &saturation, &inOut })

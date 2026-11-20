@@ -14,12 +14,13 @@ ChainPanel::ChainPanel (juce::AudioProcessorValueTreeState& state)
     : Panel ("CHAIN", PanelSymbol::none, false)
 {
     auto* subBypass = state.getRawParameterValue (lionvoice::params::subBypass);
+    auto* levBypass = state.getRawParameterValue (lionvoice::params::levBypass);
 
     // Signal order. Future modules get their bypass parameter here when they are implemented.
     stages = { {
         { "IN", nullptr, true, true },
         { "SUB EQ", subBypass, true, true },
-        { "LEVELER", nullptr, false, false },
+        { "LEVELER", levBypass, true, true },
         { "CHARACTER", nullptr, false, false },
         { "MAIN EQ", nullptr, false, false },
         { "SATURATION", nullptr, false, false },
