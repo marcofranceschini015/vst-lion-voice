@@ -1,10 +1,12 @@
 # Lion Voice
 
 A vocal channel strip plugin (VST3 / AU) that performs a complete vocal mix in one place, styled like an SSL console:
-brushed-steel faceplate, SSL-style knobs and a small Brescia lioness engraved in the steel.
+brushed-steel faceplate, SSL-style knobs and a heraldic lioness, the symbol of Brescia, engraved in the steel.
 
-> **Status:** MVP 1 in progress. The full interface is being built, but only the input/output gain and the
-> subtractive EQ process audio. The other modules are visible but inactive.
+![Lion Voice](assets/screenshot.jpg)
+
+> **Status: MVP 1 (v0.1.0).** The full interface is in place; the input/output gain stages, meters and the
+> subtractive EQ process audio. The other modules are shown as "coming soon" and arrive in the next releases.
 
 ## Signal chain
 
@@ -18,15 +20,17 @@ the modules that are currently active.
 
 ## Modules
 
-| Module | What it does | MVP 1 |
+| Module | What it does | Status |
 |---|---|---|
-| IN / OUT gain | Faders with peak/RMS meters and clip LEDs. Always active. | ✅ |
-| Subtractive EQ | High-pass filter (12/18 dB/oct) and four cut bands: mud (200–300 Hz), boxiness (400–600 Hz), nasality (800 Hz–1 kHz), harshness (2–4 kHz). | ✅ |
-| Leveler | Slow, smooth optical-style compression (LA-2A inspired) to even out the performance. | planned |
-| Character comp | Fast FET-style compression (1176 inspired) to control peaks and add attitude. | planned |
-| Main EQ | Body (Pultec-style low shelf), Presence (3–6 kHz) and Air (soft high shelf). | planned |
+| IN / OUT gain | Faders (−24…+24 dB) with peak/RMS meters, peak hold and clip LEDs. Always active. | ✅ v0.1 |
+| Subtractive EQ | High-pass filter (12/18 dB/oct) and four cut bands: mud (200–300 Hz), boxiness (400–600 Hz), nasality (800 Hz–1 kHz), harshness (2–4 kHz). | ✅ v0.1 |
+| Leveler | Slow, smooth optical-style compression (LA-2A inspired) to even out the performance. | next (v0.2) |
+| Character comp | Fast FET-style compression (1176 inspired) to control peaks and add attitude. | next (v0.2) |
+| Main EQ | Body (Pultec-style low shelf), Presence (3–6 kHz) and Air (soft high shelf). | next (v0.2) |
 | Saturation | Harmonic colour. | planned |
 | De-esser | Dynamic-EQ de-esser with a listen mode to find the sibilance. | planned |
+
+Lightweight: the current chain uses well under 1 % of one CPU core.
 
 ## Requirements
 
@@ -57,7 +61,7 @@ git submodule update --init --recursive
 |---|---|
 | Configure (debug, native arch) | `cmake --preset debug` |
 | Build | `cmake --build --preset debug` |
-| Run unit tests | `ctest --preset debug` |
+| Run the tests | `ctest --preset debug` |
 | Release build (universal arm64 + x86_64) | `cmake --preset release && cmake --build --preset release` |
 | Validate the plugin | `scripts/validate.sh` |
 
@@ -77,8 +81,18 @@ A standalone app is also built, which is handy for quick tests without a DAW.
 - **Logic Pro / GarageBand:** the Audio Unit appears under *Audio Units → Marco Franceschini → Lion Voice*.
   If a new build does not show up, run `killall -9 AudioComponentRegistrar` and restart the host.
 
-Suggested workflow: set the input gain so the vocal peaks around −12 to −10 dBFS, clean up with the subtractive EQ,
-then compare with the plugin bypassed at matched loudness.
+### Quick guide
+
+1. **IN fader:** play the vocal and set the input so its peaks land in the green marks of the IN meter
+   (−12 to −10 dBFS).
+2. **High-pass (HPF):** start around 80–90 Hz for a male voice, 100–120 Hz for a female voice; raise it until the
+   voice starts to thin out, then back off a little.
+3. **Cut bands:** set a band's CUT to about −8 dB and sweep its FREQ to find the problem (mud, boxiness, nasality,
+   harshness), then reduce the cut until it sounds natural. Q sets how wide the cut is.
+4. **OUT fader:** match the loudness of the bypassed signal, then use the BYPASS key to compare honestly.
+
+Tips: double-click any knob or fader to reset it; click a meter to clear its clip LEDs; drag the bottom-right
+corner to resize the window (70–150 %).
 
 ## Project layout
 
@@ -88,16 +102,17 @@ libs/JUCE/                          JUCE framework (git submodule)
 src/                                plugin processor, editor, parameters
 src/dsp/                            DSP code, independent of JUCE and the GUI
 src/gui/                            look-and-feel, panels, meters, logo
-tests/                              DSP unit tests (Catch2)
+tests/                              Catch2 tests: DSP units and the whole plugin
 tools/                              developer tools (GUI snapshot renderer)
+assets/                             images used by this README
 scripts/                            helper scripts (validation)
 ```
 
 ## Roadmap
 
-1. **MVP 1:** complete interface, IN/OUT gain, subtractive EQ.
-2. Leveler and character compressors with gain-reduction meters.
-3. Main EQ, saturation and de-esser.
+1. **MVP 1 (v0.1):** complete interface, IN/OUT gain and meters, subtractive EQ.
+2. **MVP 2 (v0.2):** Leveler and Character compressors with gain-reduction meters, Main EQ.
+3. **MVP 3:** saturation and de-esser.
 4. Later ideas: automatic input analysis, macro controls, an assistant that suggests a full mix.
 
 Reverb, delay and stereo effects are out of scope and will live in a separate plugin.
