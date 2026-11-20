@@ -17,26 +17,6 @@
 namespace lionvoice::gui
 {
 
-/** Main EQ: BODY (Pultec-style low shelf), PRESENCE (bell), AIR (soft high shelf). */
-class MainEqPanel final : public Panel
-{
-public:
-    MainEqPanel();
-
-private:
-    void layoutContent (juce::Rectangle<int> contentArea) override;
-    void paintContent (juce::Graphics& g, juce::Rectangle<int> contentArea) override;
-
-    Knob bodyFreq { "FREQ", palette::capBrown };
-    Knob bodyBoost { "BOOST", palette::capBrown };
-    Knob bodyAtten { "ATTEN", palette::capBrown };
-    Knob presenceFreq { "FREQ", palette::capGreen };
-    Knob presenceQ { "Q", palette::capGrey };
-    Knob presenceBoost { "BOOST", palette::capGreen };
-    Knob airBoost { "BOOST", palette::capRed };
-    std::array<juce::Rectangle<int>, 3> sections;
-};
-
 /** Dynamic-EQ de-esser: FREQ, THRESHOLD, RANGE, LISTEN. */
 class DeEsserPanel final : public Panel
 {

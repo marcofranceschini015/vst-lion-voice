@@ -20,6 +20,7 @@ add_executable(LionVoiceDspTests
     GainStageTests.cpp
     LevelMeterTests.cpp
     LevelerTests.cpp
+    MainEqTests.cpp
     ModuleBypassTests.cpp
     SmootherTests.cpp
     SubtractiveEqTests.cpp)

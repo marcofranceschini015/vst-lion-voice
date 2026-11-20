@@ -81,6 +81,17 @@ inline constexpr auto fetSidechainHpf = "fet_sc_hpf";
 /** Labels of the ratio choices, in parameter order (index = lionvoice::dsp::FetRatio). */
 inline const juce::StringArray fetRatioNames { "4:1", "8:1", "12:1", "20:1", "ALL" };
 
+// Main EQ ------------------------------------------------------------------------ added in v0.2
+inline constexpr auto meqBypass = "meq_bypass";
+inline constexpr auto meqBodyFreq = "meq_body_freq";
+inline constexpr auto meqBodyBoost = "meq_body_boost";
+inline constexpr auto meqBodyAtten = "meq_body_atten";
+inline constexpr auto meqPresenceFreq = "meq_pres_freq";
+inline constexpr auto meqPresenceQ = "meq_pres_q";
+inline constexpr auto meqPresenceBoost = "meq_pres_boost";
+inline constexpr auto meqAirFreq = "meq_air_freq";
+inline constexpr auto meqAirBoost = "meq_air_boost";
+
 /** Builds the full parameter list, used to construct the AudioProcessorValueTreeState. */
 juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
 

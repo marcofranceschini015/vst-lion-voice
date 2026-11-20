@@ -20,57 +20,8 @@ std::array<juce::Rectangle<int>, N> columns (juce::Rectangle<int> area)
     return result;
 }
 
-constexpr int sectionLabelHeight = 14;
 
 } // namespace
-
-// ---------------------------------------------------------------------------------------------
-MainEqPanel::MainEqPanel()
-    : Panel ("MAIN EQ", PanelSymbol::mainEq, true)
-{
-    for (auto* knob : { &bodyFreq, &bodyBoost, &bodyAtten, &presenceFreq, &presenceQ, &presenceBoost, &airBoost })
-    {
-        knob->setPlaceholderPosition (0.3);
-        addAndMakeVisible (*knob);
-    }
-
-    setAvailable (false);
-}
-
-void MainEqPanel::layoutContent (juce::Rectangle<int> area)
-{
-    const int height = area.getHeight() / 3;
-    for (auto& section : sections)
-        section = area.removeFromTop (height);
-
-    auto knobRow = [] (juce::Rectangle<int> section) { return section.withTrimmedTop (sectionLabelHeight).reduced (0, 4); };
-
-    const auto body = columns<3> (knobRow (sections[0]));
-    bodyFreq.setBounds (body[0].reduced (6, 0));
-    bodyBoost.setBounds (body[1].reduced (6, 0));
-    bodyAtten.setBounds (body[2].reduced (6, 0));
-
-    const auto presence = columns<3> (knobRow (sections[1]));
-    presenceFreq.setBounds (presence[0].reduced (6, 0));
-    presenceQ.setBounds (presence[1].reduced (6, 0));
-    presenceBoost.setBounds (presence[2].reduced (6, 0));
-
-    const auto air = columns<3> (knobRow (sections[2]));
-    airBoost.setBounds (air[1].reduced (6, 0));
-}
-
-void MainEqPanel::paintContent (juce::Graphics& g, juce::Rectangle<int>)
-{
-    const char* labels[] = { "BODY  60-100 HZ", "PRESENCE  3-6 KHZ", "AIR" };
-
-    for (std::size_t i = 0; i < sections.size(); ++i)
-    {
-        drawSectionLabel (g, labels[i], sections[i].withHeight (sectionLabelHeight).withTrimmedLeft (2));
-        if (i > 0)
-            steel::drawEngravedLine (g, static_cast<float> (sections[i].getY()) - 2.0f,
-                                     static_cast<float> (sections[i].getX()), static_cast<float> (sections[i].getRight()));
-    }
-}
 
 // ---------------------------------------------------------------------------------------------
 DeEsserPanel::DeEsserPanel()

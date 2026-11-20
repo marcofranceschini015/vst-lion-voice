@@ -57,6 +57,16 @@ LionVoiceAudioProcessor::LionVoiceAudioProcessor()
     fetRatio = get (params::fetRatio);
     fetMix = get (params::fetMix);
     fetSidechainHpf = get (params::fetSidechainHpf);
+
+    meqBypass = get (params::meqBypass);
+    meqBodyFreq = get (params::meqBodyFreq);
+    meqBodyBoost = get (params::meqBodyBoost);
+    meqBodyAtten = get (params::meqBodyAtten);
+    meqPresenceFreq = get (params::meqPresenceFreq);
+    meqPresenceQ = get (params::meqPresenceQ);
+    meqPresenceBoost = get (params::meqPresenceBoost);
+    meqAirFreq = get (params::meqAirFreq);
+    meqAirBoost = get (params::meqAirBoost);
 }
 
 void LionVoiceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
@@ -72,6 +82,8 @@ void LionVoiceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBl
     levelerBypass.setBypassed (levBypass->load() >= 0.5f);
     character.setSettings (readCharacterSettings());
     characterBypass.setBypassed (fetBypass->load() >= 0.5f);
+    mainEq.setSettings (readMainEqSettings());
+    mainEqBypass.setBypassed (meqBypass->load() >= 0.5f);
 
     inputGain.prepare (sampleRate, samplesPerBlock);
     subtractiveEqBypass.prepare (sampleRate, samplesPerBlock, numChannels);
@@ -80,6 +92,8 @@ void LionVoiceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBl
     leveler.prepare (sampleRate, samplesPerBlock);
     characterBypass.prepare (sampleRate, samplesPerBlock, numChannels);
     character.prepare (sampleRate, samplesPerBlock);
+    mainEqBypass.prepare (sampleRate, samplesPerBlock, numChannels);
+    mainEq.prepare (sampleRate);
     outputGain.prepare (sampleRate, samplesPerBlock);
 
     inputMeter.prepare (sampleRate);
@@ -124,6 +138,22 @@ lionvoice::dsp::CharacterSettings LionVoiceAudioProcessor::readCharacterSettings
     return settings;
 }
 
+lionvoice::dsp::MainEqSettings LionVoiceAudioProcessor::readMainEqSettings() const noexcept
+{
+    constexpr auto relaxed = std::memory_order_relaxed;
+
+    lionvoice::dsp::MainEqSettings settings;
+    settings.bodyFrequency = meqBodyFreq->load (relaxed);
+    settings.bodyBoostDb = meqBodyBoost->load (relaxed);
+    settings.bodyAttenDb = meqBodyAtten->load (relaxed);
+    settings.presenceFrequency = meqPresenceFreq->load (relaxed);
+    settings.presenceQ = meqPresenceQ->load (relaxed);
+    settings.presenceBoostDb = meqPresenceBoost->load (relaxed);
+    settings.airFrequency = meqAirFreq->load (relaxed);
+    settings.airBoostDb = meqAirBoost->load (relaxed);
+    return settings;
+}
+
 void LionVoiceAudioProcessor::releaseResources() {}
 
 bool LionVoiceAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
@@ -159,6 +189,8 @@ void LionVoiceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     levelerBypass.setBypassed (levBypass->load (relaxed) >= 0.5f);
     character.setSettings (readCharacterSettings());
     characterBypass.setBypassed (fetBypass->load (relaxed) >= 0.5f);
+    mainEq.setSettings (readMainEqSettings());
+    mainEqBypass.setBypassed (meqBypass->load (relaxed) >= 0.5f);
     outputGain.setGainDb (outGainDb->load (relaxed));
 
     // --- Chain ---------------------------------------------------------------
@@ -180,7 +212,12 @@ void LionVoiceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
         [this] (float* const* ch, int nc, int ns) { character.process (ch, nc, ns); },
         [this] { character.reset(); });
 
-    // Main EQ -> Saturation -> De-esser   (future modules)
+    mainEqBypass.process (
+        channels, numChannels, numSamples,
+        [this] (float* const* ch, int nc, int ns) { mainEq.process (ch, nc, ns); },
+        [this] { mainEq.reset(); });
+
+    // Saturation -> De-esser   (future modules)
 
     outputGain.process (channels, numChannels, numSamples);
     outputMeter.process (channels, numChannels, numSamples);

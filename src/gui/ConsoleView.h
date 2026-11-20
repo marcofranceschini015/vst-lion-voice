@@ -8,6 +8,7 @@
 #include "InOutPanel.h"
 #include "InactivePanels.h"
 #include "LevelerPanel.h"
+#include "MainEqPanel.h"
 #include "Layout.h"
 #include "Panel.h"
 #include "PluginProcessor.h"
@@ -23,7 +24,7 @@ namespace lionvoice::gui
     The whole console, always laid out at the design size (layout::baseWidth x baseHeight).
     The editor scales it as one piece with an AffineTransform, so everything stays proportional and sharp.
 
-    Live: IN/OUT faders and meters, Subtractive EQ, Leveler, Character, chain LEDs. The other modules are shown as
+    Live: IN/OUT faders and meters, Subtractive EQ, Leveler, Character, Main EQ, chain LEDs. The other modules are shown as
     "coming soon" placeholders.
 */
 class ConsoleView final : public juce::Component

@@ -44,6 +44,18 @@ BiquadCoefficients lowPass (double sampleRate, double frequency, double q) noexc
 BiquadCoefficients highPass1stOrder (double sampleRate, double frequency) noexcept;
 
 /**
+    Gentle first-order (6 dB/oct) high shelf, Baxandall-like, "de-cramped": unlike a plain bilinear design it
+    keeps the analog response up to Nyquist, so an air boost near 16-20 kHz is not squashed at 44.1/48 kHz.
+    Pole and zero are fitted so the gain matches the analog shelf exactly at three points: DC, the corner and
+    Nyquist (magnitude matching in the style of M. Vicanek, "Matched One-Pole Digital Shelving Filters").
+    frequency = corner, where the boost is half of gainDb. Only b0, b1 and a1 are used.
+*/
+BiquadCoefficients highShelf1stOrderMatched (double sampleRate, double frequency, double gainDb) noexcept;
+
+/** Gain in dB of the analog first-order high shelf that highShelf1stOrderMatched() reproduces. */
+double analogHighShelf1stOrderDb (double frequency, double cornerFrequency, double gainDb) noexcept;
+
+/**
     Exact gain of the filter at a frequency, in dB, computed from the coefficients (no audio needed).
     Used by the tests and, later, to draw EQ curves.
 */

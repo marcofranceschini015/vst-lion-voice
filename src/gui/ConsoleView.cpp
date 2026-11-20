@@ -14,6 +14,7 @@ ConsoleView::ConsoleView (LionVoiceAudioProcessor& processor)
     , character (processor.getParameters(), processor.getCharacter())
     , chain (processor.getParameters())
     , subtractiveEq (processor.getParameters())
+    , mainEq (processor.getParameters())
     , inOut (processor.getParameters(), processor.getInputMeter(), processor.getOutputMeter())
 {
     for (auto* panel : std::initializer_list<juce::Component*> { &leveler, &character, &chain, &subtractiveEq, &mainEq,

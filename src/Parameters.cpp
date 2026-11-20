@@ -152,6 +152,32 @@ std::unique_ptr<juce::AudioProcessorParameterGroup> makeCharacterGroup()
     return group;
 }
 
+std::unique_ptr<juce::AudioProcessorParameterGroup> makeMainEqGroup()
+{
+    auto group = std::make_unique<juce::AudioProcessorParameterGroup> ("main_eq", "Main EQ", " | ");
+
+    auto hz = [] (const char* id, const char* name, float min, float max, float defaultValue)
+    {
+        return std::make_unique<juce::AudioParameterFloat> (
+            juce::ParameterID { id, mvp2Version }, name, logRange (min, max, 1.0f), defaultValue,
+            Attributes().withStringFromValueFunction (formatHz).withValueFromStringFunction (parseHz));
+    };
+
+    group->addChild (std::make_unique<juce::AudioParameterBool> (juce::ParameterID { meqBypass, mvp2Version },
+                                                                 "Main EQ Bypass", false));
+    group->addChild (hz (meqBodyFreq, "Main EQ Body Freq", 50.0f, 120.0f, 80.0f));
+    group->addChild (makeDb (meqBodyBoost, "Main EQ Body Boost", 0.0f, 10.0f, 0.0f, mvp2Version));
+    group->addChild (makeDb (meqBodyAtten, "Main EQ Body Atten", 0.0f, 10.0f, 0.0f, mvp2Version));
+    group->addChild (hz (meqPresenceFreq, "Main EQ Presence Freq", 3000.0f, 6000.0f, 4500.0f));
+    group->addChild (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { meqPresenceQ, mvp2Version }, "Main EQ Presence Q", logRange (0.5f, 3.0f, 0.01f), 1.0f,
+        Attributes().withStringFromValueFunction (formatQ)));
+    group->addChild (makeDb (meqPresenceBoost, "Main EQ Presence Boost", 0.0f, 10.0f, 0.0f, mvp2Version));
+    group->addChild (hz (meqAirFreq, "Main EQ Air Freq", 8000.0f, 16000.0f, 12000.0f));
+    group->addChild (makeDb (meqAirBoost, "Main EQ Air Boost", 0.0f, 8.0f, 0.0f, mvp2Version));
+    return group;
+}
+
 } // namespace
 
 juce::AudioProcessorValueTreeState::ParameterLayout createLayout()
@@ -162,6 +188,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout createLayout()
     layout.add (makeSubtractiveEqGroup());
     layout.add (makeLevelerGroup());
     layout.add (makeCharacterGroup());
+    layout.add (makeMainEqGroup());
     layout.add (makeDb (outGain, "Output Gain", gainMinDb, gainMaxDb, gainDefaultDb));
 
     return layout;

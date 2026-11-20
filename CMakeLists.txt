@@ -23,6 +23,7 @@ add_library(LionVoiceDsp STATIC
     src/dsp/BiquadDesign.cpp
     src/dsp/CharacterCompressor.cpp
     src/dsp/Leveler.cpp
+    src/dsp/MainEq.cpp
     src/dsp/SubtractiveEq.cpp)
 
 target_include_directories(LionVoiceDsp
@@ -56,6 +57,7 @@ set(LIONVOICE_PLUGIN_SOURCES
     ${PROJECT_SOURCE_DIR}/src/gui/LevelerPanel.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/LionLogo.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/LionLookAndFeel.cpp
+    ${PROJECT_SOURCE_DIR}/src/gui/MainEqPanel.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/Panel.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/PanelSymbols.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/SteelBackground.cpp

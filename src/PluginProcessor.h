@@ -7,6 +7,7 @@
 #include "dsp/LevelMeter.h"
 #include "dsp/CharacterCompressor.h"
 #include "dsp/Leveler.h"
+#include "dsp/MainEq.h"
 #include "dsp/ModuleBypass.h"
 #include "dsp/SubtractiveEq.h"
 
@@ -21,7 +22,7 @@
     The host (DAW) calls processBlock() on its real-time audio thread with small blocks of samples.
     Code in that path must never allocate memory, take locks or wait on anything.
 
-    Signal chain (active so far: gain stages, subtractive EQ, leveler, character):
+    Signal chain (active so far: gain stages, subtractive EQ, leveler, character, main EQ):
         IN gain -> Subtractive EQ -> Leveler -> Character comp -> Main EQ -> Saturation -> De-esser -> OUT gain
 */
 class LionVoiceAudioProcessor final : public juce::AudioProcessor
@@ -77,6 +78,7 @@ private:
     lionvoice::dsp::SubtractiveEqSettings readSubtractiveEqSettings() const noexcept;
     lionvoice::dsp::LevelerSettings readLevelerSettings() const noexcept;
     lionvoice::dsp::CharacterSettings readCharacterSettings() const noexcept;
+    lionvoice::dsp::MainEqSettings readMainEqSettings() const noexcept;
 
     juce::AudioProcessorValueTreeState parameters;
 
@@ -105,6 +107,16 @@ private:
     std::atomic<float>* fetMix = nullptr;
     std::atomic<float>* fetSidechainHpf = nullptr;
 
+    std::atomic<float>* meqBypass = nullptr;
+    std::atomic<float>* meqBodyFreq = nullptr;
+    std::atomic<float>* meqBodyBoost = nullptr;
+    std::atomic<float>* meqBodyAtten = nullptr;
+    std::atomic<float>* meqPresenceFreq = nullptr;
+    std::atomic<float>* meqPresenceQ = nullptr;
+    std::atomic<float>* meqPresenceBoost = nullptr;
+    std::atomic<float>* meqAirFreq = nullptr;
+    std::atomic<float>* meqAirBoost = nullptr;
+
     // Signal chain, in processing order.
     lionvoice::dsp::GainStage inputGain;
     lionvoice::dsp::ModuleBypass subtractiveEqBypass;
@@ -113,6 +125,8 @@ private:
     lionvoice::dsp::Leveler leveler;
     lionvoice::dsp::ModuleBypass characterBypass;
     lionvoice::dsp::CharacterCompressor character;
+    lionvoice::dsp::ModuleBypass mainEqBypass;
+    lionvoice::dsp::MainEq mainEq;
     lionvoice::dsp::GainStage outputGain;
 
     lionvoice::dsp::LevelMeter inputMeter;
