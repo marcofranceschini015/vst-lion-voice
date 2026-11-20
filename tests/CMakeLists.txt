@@ -15,6 +15,7 @@ FetchContent_MakeAvailable(Catch2)
 
 add_executable(LionVoiceDspTests
     BiquadTests.cpp
+    DynamicsTests.cpp
     GainStageTests.cpp
     LevelMeterTests.cpp
     ModuleBypassTests.cpp
