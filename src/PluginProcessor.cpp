@@ -48,6 +48,15 @@ LionVoiceAudioProcessor::LionVoiceAudioProcessor()
     levPeakReduction = get (params::levPeakReduction);
     levGain = get (params::levGain);
     levLimit = get (params::levLimit);
+
+    fetBypass = get (params::fetBypass);
+    fetInput = get (params::fetInput);
+    fetOutput = get (params::fetOutput);
+    fetAttack = get (params::fetAttack);
+    fetRelease = get (params::fetRelease);
+    fetRatio = get (params::fetRatio);
+    fetMix = get (params::fetMix);
+    fetSidechainHpf = get (params::fetSidechainHpf);
 }
 
 void LionVoiceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
@@ -61,12 +70,16 @@ void LionVoiceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBl
     subtractiveEqBypass.setBypassed (subBypass->load() >= 0.5f);
     leveler.setSettings (readLevelerSettings());
     levelerBypass.setBypassed (levBypass->load() >= 0.5f);
+    character.setSettings (readCharacterSettings());
+    characterBypass.setBypassed (fetBypass->load() >= 0.5f);
 
     inputGain.prepare (sampleRate, samplesPerBlock);
     subtractiveEqBypass.prepare (sampleRate, samplesPerBlock, numChannels);
     subtractiveEq.prepare (sampleRate);
     levelerBypass.prepare (sampleRate, samplesPerBlock, numChannels);
     leveler.prepare (sampleRate, samplesPerBlock);
+    characterBypass.prepare (sampleRate, samplesPerBlock, numChannels);
+    character.prepare (sampleRate, samplesPerBlock);
     outputGain.prepare (sampleRate, samplesPerBlock);
 
     inputMeter.prepare (sampleRate);
@@ -93,6 +106,22 @@ lionvoice::dsp::LevelerSettings LionVoiceAudioProcessor::readLevelerSettings() c
 {
     constexpr auto relaxed = std::memory_order_relaxed;
     return { levPeakReduction->load (relaxed), levGain->load (relaxed), levLimit->load (relaxed) >= 0.5f };
+}
+
+lionvoice::dsp::CharacterSettings LionVoiceAudioProcessor::readCharacterSettings() const noexcept
+{
+    constexpr auto relaxed = std::memory_order_relaxed;
+    const int ratioIndex = std::clamp (juce::roundToInt (fetRatio->load (relaxed)), 0, 4);
+
+    lionvoice::dsp::CharacterSettings settings;
+    settings.inputDb = fetInput->load (relaxed);
+    settings.outputDb = fetOutput->load (relaxed);
+    settings.attackMs = fetAttack->load (relaxed);
+    settings.releaseMs = fetRelease->load (relaxed);
+    settings.ratio = static_cast<lionvoice::dsp::FetRatio> (ratioIndex);
+    settings.mix = fetMix->load (relaxed) / 100.0f;
+    settings.sidechainHighPass = fetSidechainHpf->load (relaxed) >= 0.5f;
+    return settings;
 }
 
 void LionVoiceAudioProcessor::releaseResources() {}
@@ -128,6 +157,8 @@ void LionVoiceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     subtractiveEqBypass.setBypassed (subBypass->load (relaxed) >= 0.5f);
     leveler.setSettings (readLevelerSettings());
     levelerBypass.setBypassed (levBypass->load (relaxed) >= 0.5f);
+    character.setSettings (readCharacterSettings());
+    characterBypass.setBypassed (fetBypass->load (relaxed) >= 0.5f);
     outputGain.setGainDb (outGainDb->load (relaxed));
 
     // --- Chain ---------------------------------------------------------------
@@ -144,7 +175,12 @@ void LionVoiceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
         [this] (float* const* ch, int nc, int ns) { leveler.process (ch, nc, ns); },
         [this] { leveler.reset(); });
 
-    // Character comp -> Main EQ -> Saturation -> De-esser   (future modules)
+    characterBypass.process (
+        channels, numChannels, numSamples,
+        [this] (float* const* ch, int nc, int ns) { character.process (ch, nc, ns); },
+        [this] { character.reset(); });
+
+    // Main EQ -> Saturation -> De-esser   (future modules)
 
     outputGain.process (channels, numChannels, numSamples);
     outputMeter.process (channels, numChannels, numSamples);

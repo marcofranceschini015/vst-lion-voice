@@ -25,55 +25,6 @@ constexpr int sectionLabelHeight = 14;
 } // namespace
 
 // ---------------------------------------------------------------------------------------------
-CharacterPanel::CharacterPanel()
-    : Panel ("CHARACTER", PanelSymbol::character, true)
-{
-    const char* ratios[] = { "4", "8", "12", "20" };
-
-    for (auto* knob : { &input, &output, &attack, &release, &mix })
-        addAndMakeVisible (*knob);
-
-    input.setPlaceholderPosition (0.4);
-    output.setPlaceholderPosition (0.5);
-    attack.setPlaceholderPosition (0.8);
-    release.setPlaceholderPosition (0.6);
-    mix.setPlaceholderPosition (1.0);
-
-    for (std::size_t i = 0; i < ratioKeys.size(); ++i)
-    {
-        ratioKeys[i] = std::make_unique<juce::ToggleButton> (ratios[i]);
-        ratioKeys[i]->setColour (juce::ToggleButton::tickColourId, palette::ledAmberOn);
-        ratioKeys[i]->setToggleState (i == 0, juce::dontSendNotification);
-        addAndMakeVisible (*ratioKeys[i]);
-    }
-
-    setAvailable (false);
-}
-
-void CharacterPanel::layoutContent (juce::Rectangle<int> area)
-{
-    auto top = area.removeFromTop (area.getHeight() * 3 / 5);
-    const auto knobs = columns<4> (top);
-    input.setBounds (knobs[0].withSizeKeepingCentre (92, 105));
-    output.setBounds (knobs[1].withSizeKeepingCentre (92, 105));
-    attack.setBounds (knobs[2].withSizeKeepingCentre (76, 90));
-    release.setBounds (knobs[3].withSizeKeepingCentre (76, 90));
-
-    auto bottom = area;
-    mix.setBounds (bottom.removeFromRight (bottom.getWidth() / 4).withSizeKeepingCentre (64, 74));
-
-    ratioLabelArea = bottom.removeFromLeft (60);
-    const auto keys = columns<4> (bottom);
-    for (std::size_t i = 0; i < ratioKeys.size(); ++i)
-        ratioKeys[i]->setBounds (keys[i].withSizeKeepingCentre (keys[i].getWidth() - 8, 26));
-}
-
-void CharacterPanel::paintContent (juce::Graphics& g, juce::Rectangle<int>)
-{
-    drawSectionLabel (g, "RATIO", ratioLabelArea);
-}
-
-// ---------------------------------------------------------------------------------------------
 MainEqPanel::MainEqPanel()
     : Panel ("MAIN EQ", PanelSymbol::mainEq, true)
 {

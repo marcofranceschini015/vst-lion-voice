@@ -40,6 +40,12 @@ float parseHz (const juce::String& text)
     return text.containsIgnoreCase ("k") ? value * 1000.0f : value;
 }
 
+/** "0.30 ms" below 10 ms, "150 ms" above. */
+juce::String formatMs (float value, int /*maximumLength*/)
+{
+    return value < 10.0f ? juce::String (value, 2) + " ms" : juce::String (juce::roundToInt (value)) + " ms";
+}
+
 juce::String formatQ (float value, int /*maximumLength*/)
 {
     return juce::String (value, 2);
@@ -118,6 +124,34 @@ std::unique_ptr<juce::AudioProcessorParameterGroup> makeLevelerGroup()
     return group;
 }
 
+std::unique_ptr<juce::AudioParameterFloat> makeMs (const char* id, const juce::String& name, float min, float max,
+                                                   float defaultValue, float step)
+{
+    return std::make_unique<juce::AudioParameterFloat> (juce::ParameterID { id, mvp2Version }, name,
+                                                        logRange (min, max, step), defaultValue,
+                                                        Attributes().withStringFromValueFunction (formatMs));
+}
+
+std::unique_ptr<juce::AudioProcessorParameterGroup> makeCharacterGroup()
+{
+    auto group = std::make_unique<juce::AudioProcessorParameterGroup> ("character", "Character", " | ");
+
+    group->addChild (std::make_unique<juce::AudioParameterBool> (juce::ParameterID { fetBypass, mvp2Version },
+                                                                 "Character Bypass", false));
+    group->addChild (makeDb (fetInput, "Character Input", -12.0f, 24.0f, 0.0f, mvp2Version));
+    group->addChild (makeDb (fetOutput, "Character Output", -24.0f, 12.0f, 0.0f, mvp2Version));
+    group->addChild (makeMs (fetAttack, "Character Attack", 0.02f, 0.8f, 0.3f, 0.001f));
+    group->addChild (makeMs (fetRelease, "Character Release", 50.0f, 1100.0f, 150.0f, 1.0f));
+    group->addChild (std::make_unique<juce::AudioParameterChoice> (juce::ParameterID { fetRatio, mvp2Version },
+                                                                   "Character Ratio", fetRatioNames, 0));
+    group->addChild (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { fetMix, mvp2Version }, "Character Mix", juce::NormalisableRange<float> { 0.0f, 100.0f, 1.0f },
+        100.0f, Attributes().withLabel ("%")));
+    group->addChild (std::make_unique<juce::AudioParameterBool> (juce::ParameterID { fetSidechainHpf, mvp2Version },
+                                                                 "Character SC HPF", true));
+    return group;
+}
+
 } // namespace
 
 juce::AudioProcessorValueTreeState::ParameterLayout createLayout()
@@ -127,6 +161,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout createLayout()
     layout.add (makeDb (inGain, "Input Gain", gainMinDb, gainMaxDb, gainDefaultDb));
     layout.add (makeSubtractiveEqGroup());
     layout.add (makeLevelerGroup());
+    layout.add (makeCharacterGroup());
     layout.add (makeDb (outGain, "Output Gain", gainMinDb, gainMaxDb, gainDefaultDb));
 
     return layout;

@@ -68,6 +68,19 @@ inline constexpr auto levLimit = "lev_limit";
 inline constexpr float levPeakReductionDefault = 25.0f;
 inline constexpr float levGainMaxDb = 24.0f;
 
+// Character (1176 style) ----------------------------------------------------- added in v0.2
+inline constexpr auto fetBypass = "fet_bypass";
+inline constexpr auto fetInput = "fet_input";
+inline constexpr auto fetOutput = "fet_output";
+inline constexpr auto fetAttack = "fet_attack";
+inline constexpr auto fetRelease = "fet_release";
+inline constexpr auto fetRatio = "fet_ratio";
+inline constexpr auto fetMix = "fet_mix";
+inline constexpr auto fetSidechainHpf = "fet_sc_hpf";
+
+/** Labels of the ratio choices, in parameter order (index = lionvoice::dsp::FetRatio). */
+inline const juce::StringArray fetRatioNames { "4:1", "8:1", "12:1", "20:1", "ALL" };
+
 /** Builds the full parameter list, used to construct the AudioProcessorValueTreeState. */
 juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
 

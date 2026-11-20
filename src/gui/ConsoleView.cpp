@@ -11,6 +11,7 @@ namespace lionvoice::gui
 ConsoleView::ConsoleView (LionVoiceAudioProcessor& processor)
     : slots (layout::computeSlots())
     , leveler (processor.getParameters(), processor.getLeveler())
+    , character (processor.getParameters(), processor.getCharacter())
     , chain (processor.getParameters())
     , subtractiveEq (processor.getParameters())
     , inOut (processor.getParameters(), processor.getInputMeter(), processor.getOutputMeter())

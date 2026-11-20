@@ -98,6 +98,8 @@ TEST_CASE ("Parameter IDs never change", "[plugin]")
         "sub_b3_q",    "sub_b4_freq", "sub_b4_cut",   "sub_b4_q",      "out_gain",
         // v0.2
         "lev_bypass",  "lev_peak_red", "lev_gain",    "lev_limit",
+        "fet_bypass",  "fet_input",    "fet_output",  "fet_attack",    "fet_release", "fet_ratio",
+        "fet_mix",     "fet_sc_hpf",
     };
 
     juce::ScopedJuceInitialiser_GUI juce;

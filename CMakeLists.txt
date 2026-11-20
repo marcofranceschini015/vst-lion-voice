@@ -21,6 +21,7 @@ add_subdirectory(libs/JUCE)
 # Shared by the plugin and the unit tests. JUCE is only used here for its recommended compiler flags.
 add_library(LionVoiceDsp STATIC
     src/dsp/BiquadDesign.cpp
+    src/dsp/CharacterCompressor.cpp
     src/dsp/Leveler.cpp
     src/dsp/SubtractiveEq.cpp)
 
@@ -45,7 +46,9 @@ set(LIONVOICE_PLUGIN_SOURCES
     ${PROJECT_SOURCE_DIR}/src/PluginProcessor.cpp
     ${PROJECT_SOURCE_DIR}/src/PluginEditor.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/ChainPanel.cpp
+    ${PROJECT_SOURCE_DIR}/src/gui/CharacterPanel.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/ConsoleView.cpp
+    ${PROJECT_SOURCE_DIR}/src/gui/GainReductionBar.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/InOutPanel.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/InactivePanels.cpp
     ${PROJECT_SOURCE_DIR}/src/gui/Knob.cpp

@@ -5,6 +5,7 @@
 
 #include "dsp/GainStage.h"
 #include "dsp/LevelMeter.h"
+#include "dsp/CharacterCompressor.h"
 #include "dsp/Leveler.h"
 #include "dsp/ModuleBypass.h"
 #include "dsp/SubtractiveEq.h"
@@ -20,7 +21,7 @@
     The host (DAW) calls processBlock() on its real-time audio thread with small blocks of samples.
     Code in that path must never allocate memory, take locks or wait on anything.
 
-    Signal chain (active so far: gain stages, subtractive EQ, leveler):
+    Signal chain (active so far: gain stages, subtractive EQ, leveler, character):
         IN gain -> Subtractive EQ -> Leveler -> Character comp -> Main EQ -> Saturation -> De-esser -> OUT gain
 */
 class LionVoiceAudioProcessor final : public juce::AudioProcessor
@@ -69,11 +70,13 @@ public:
 
     /** Modules whose state the GUI displays (gain reduction meters). */
     const lionvoice::dsp::Leveler& getLeveler() const noexcept { return leveler; }
+    const lionvoice::dsp::CharacterCompressor& getCharacter() const noexcept { return character; }
 
 private:
     /** Reads the subtractive EQ parameters into one settings struct (audio thread, lock-free). */
     lionvoice::dsp::SubtractiveEqSettings readSubtractiveEqSettings() const noexcept;
     lionvoice::dsp::LevelerSettings readLevelerSettings() const noexcept;
+    lionvoice::dsp::CharacterSettings readCharacterSettings() const noexcept;
 
     juce::AudioProcessorValueTreeState parameters;
 
@@ -93,12 +96,23 @@ private:
     std::atomic<float>* levGain = nullptr;
     std::atomic<float>* levLimit = nullptr;
 
+    std::atomic<float>* fetBypass = nullptr;
+    std::atomic<float>* fetInput = nullptr;
+    std::atomic<float>* fetOutput = nullptr;
+    std::atomic<float>* fetAttack = nullptr;
+    std::atomic<float>* fetRelease = nullptr;
+    std::atomic<float>* fetRatio = nullptr;
+    std::atomic<float>* fetMix = nullptr;
+    std::atomic<float>* fetSidechainHpf = nullptr;
+
     // Signal chain, in processing order.
     lionvoice::dsp::GainStage inputGain;
     lionvoice::dsp::ModuleBypass subtractiveEqBypass;
     lionvoice::dsp::SubtractiveEq subtractiveEq;
     lionvoice::dsp::ModuleBypass levelerBypass;
     lionvoice::dsp::Leveler leveler;
+    lionvoice::dsp::ModuleBypass characterBypass;
+    lionvoice::dsp::CharacterCompressor character;
     lionvoice::dsp::GainStage outputGain;
 
     lionvoice::dsp::LevelMeter inputMeter;

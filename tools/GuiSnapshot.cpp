@@ -9,6 +9,7 @@
 //   console.png    the full plugin window at 100 % size (2x pixel density)
 //   controls.png   knob colours, keys/LEDs, fader, meter and the lioness logo, enlarged
 
+#include "gui/GainReductionBar.h"
 #include "gui/LevelMeterDisplay.h"
 #include "gui/LionLogo.h"
 #include "gui/LionLookAndFeel.h"
@@ -105,6 +106,9 @@ juce::Image renderControlSheet()
     // VU meter in gain-reduction mode, needle at 6 dB of reduction.
     using lionvoice::gui::VuMeter;
     VuMeter::drawMeter (g, { 470.0f, row + 30.0f, 220.0f, 130.0f }, VuMeter::dbToPosition (-6.0f), "VU");
+
+    // Gain-reduction LED bar at 5 dB.
+    lionvoice::gui::GainReductionBar::drawBar (g, { 470.0f, row + 180.0f, 220.0f, 30.0f }, -5.0f);
 
     return image;
 }
